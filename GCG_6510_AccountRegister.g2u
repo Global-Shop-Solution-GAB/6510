@@ -1,0 +1,788 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.Form..Create(BaseForm)
+Gui.Form..Caption("GCG 6510 Account Register")
+Gui.Form..Size(20655,12555)
+Gui.Form..MinX(0)
+Gui.Form..MinY(0)
+Gui.Form..Position(0,0)
+Gui.Form..BackColor(-2147483633)
+Gui.Form..MousePointer(0)
+Gui.Form..Event(UnLoad,Form_UnLoad)
+Gui.Form..AlwaysOnTop(False)
+Gui.Form..FontName("Tahoma")
+Gui.Form..FontSize(8.25)
+Gui.Form..ControlBox(True)
+Gui.Form..MaxButton(True)
+Gui.Form..MinButton(True)
+Gui.Form..Moveable(True)
+Gui.Form..Sizeable(True)
+Gui.Form..ShowInTaskBar(True)
+Gui.Form..TitleBar(True)
+Gui.Form.ddlCash.Create(DropDownList)
+Gui.Form.ddlCash.Size(1515,330)
+Gui.Form.ddlCash.Position(90,375)
+Gui.Form.ddlCash.Enabled(True)
+Gui.Form.ddlCash.Visible(True)
+Gui.Form.ddlCash.Zorder(0)
+Gui.Form.ddlCash.FontName("Tahoma")
+Gui.Form.ddlCash.FontSize(8.25)
+Gui.Form.lbl1.Create(Label,"Cash Account",True,1185,255,0,120,165,True,0,"Arial",8,-2147483633,0,0)
+Gui.Form.lbl1.BorderStyle(0)
+Gui.Form.dtpStart.Create(DatePicker)
+Gui.Form.dtpStart.Size(1935,285)
+Gui.Form.dtpStart.Position(1755,360)
+Gui.Form.dtpStart.Enabled(True)
+Gui.Form.dtpStart.Visible(True)
+Gui.Form.dtpStart.Zorder(0)
+Gui.Form.dtpStart.CheckBox(False)
+Gui.Form.dtpStart.FontName("Tahoma")
+Gui.Form.dtpStart.FontSize(8.25)
+Gui.Form.lbl2.Create(Label,"Start Date",True,1005,255,0,1860,150,True,0,"Arial",8,-2147483633,0,0)
+Gui.Form.lbl2.BorderStyle(0)
+Gui.Form.GsGrid.Create(GsGridControl)
+Gui.Form.GsGrid.Size(20490,11610)
+Gui.Form.GsGrid.Position(30,735)
+Gui.Form.GsGrid.Enabled(True)
+Gui.Form.GsGrid.Visible(True)
+Gui.Form.GsGrid.Zorder(0)
+Gui.Form.cmdDisplay.Create(Button)
+Gui.Form.cmdDisplay.Size(1200,375)
+Gui.Form.cmdDisplay.Position(5910,315)
+Gui.Form.cmdDisplay.Caption("Display")
+Gui.Form.cmdDisplay.Event(Click,cmdDisplay_Click)
+Gui.Form.cmdDisplay.Enabled(True)
+Gui.Form.cmdDisplay.Visible(True)
+Gui.Form.cmdDisplay.Zorder(0)
+Gui.Form.cmdDisplay.FontName("Tahoma")
+Gui.Form.cmdDisplay.FontSize(8.25)
+Gui.Form.lbl3.Create(Label,"End Date",True,885,255,0,3810,165,True,0,"Arial",8,-2147483633,0,0)
+Gui.Form.lbl3.BorderStyle(0)
+Gui.Form.dtpEnd.Create(DatePicker)
+Gui.Form.dtpEnd.Size(1935,285)
+Gui.Form.dtpEnd.Position(3795,360)
+Gui.Form.dtpEnd.Enabled(True)
+Gui.Form.dtpEnd.Visible(True)
+Gui.Form.dtpEnd.Zorder(0)
+Gui.Form.dtpEnd.CheckBox(False)
+Gui.Form.dtpEnd.FontName("Tahoma")
+Gui.Form.dtpEnd.FontSize(8.25)
+Gui.Form.lbl4.Create(Label,"Totals on this screen may not match the totals for the other general ledger views or reports for the same date. This screen uses the check date instead of post/batch date for ap and payroll checks.",True,9090,570,0,10635,150,True,0,"Arial",10,-2147483633,0,0)
+Gui.Form.lbl4.BorderStyle(0)
+Gui.Form.lbl5.Create(Label,"Beginning Balance For Start Date",True,2715,255,0,7425,150,True,0,"Arial",8,-2147483633,0,0)
+Gui.Form.lbl5.BorderStyle(0)
+Gui.Form.txtBal.Create(TextBox,"",True,2040,300,0,7620,375,False,2,"Arial",8,-2147483643,1)
+Gui.Form.txtBal.Locked(True)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+V.Global.sStart.Declare(String)
+V.Global.sEnd.Declare(String)
+V.Global.sCash.Declare(String)
+V.Global.fStartCurrent.Declare(Float)
+V.Global.snewEnd.Declare(String)
+V.Global.snewStart.Declare(String)
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+V.Local.sError.Declare(String)
+
+F.ODBC.connection!con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass, 10000000)
+'populate cash account
+Function.Intrinsic.Control.CallSub(chooseacct)
+GUI.Form..Show
+
+F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4444_AccountRegister.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	Function.Intrinsic.Control.CallSub(form_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.Main.End
+
+Program.Sub.Form_UnLoad.Start
+F.Intrinsic.Control.SetErrorHandler("Form_UnLoad_Err")
+F.Intrinsic.Control.ClearErrors
+V.Local.sError.Declare(String)
+
+Gui.Form..Visible(False)
+F.ODBC.Connection!con.Close
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.Label("Form_UnLoad_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4444_AccountRegister.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	Function.Intrinsic.Control.End
+
+Function.Intrinsic.Control.EndIf
+Program.Sub.Form_UnLoad.End
+
+Program.Sub.cmdDisplay_Click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdDisplay_Click_Err")
+F.Intrinsic.Control.ClearErrors
+V.Local.sError.Declare(String)
+'coded by Dawn 3/16/17. They go live in Oct 2017. 
+
+Gui.Form.cmdDisplay.Enabled(False)
+F.Intrinsic.UI.InvokeWaitDialog("Loading Data","Loading Data")
+
+V.Local..BulkDeclareString(sExp, sSort, ssql, sGL, sAmount, sBetweenDates, sBACK)
+
+'close datatables if they are open
+Function.Intrinsic.Control.If(V.DataTable.Master.Exists, =, True)
+	F.Data.DataTable.Close("Master")
+Function.Intrinsic.Control.EndIf
+Function.Intrinsic.Control.If(V.DataTable.Master$Master_Child.Exists, =, True)
+	F.Data.DataTable.Close("Master$Master_Child")
+Function.Intrinsic.Control.EndIf
+Function.Intrinsic.Control.If(V.DataTable.Master$Master_Child.Exists, =, True)
+	F.Data.DataTable.Close("Master$AR_11_Child")
+Function.Intrinsic.Control.EndIf
+
+'master table
+F.Data.DataTable.Create("Master", True)
+F.Data.DataTable.AddColumn("Master", "Dates", "Date")
+F.Data.DataTable.AddColumn("Master", "BATCH", "String")
+F.Data.DataTable.AddColumn("Master", "CHK_Number", "String")
+F.Data.DataTable.AddColumn("Master", "Name_Desc", "String")
+F.Data.DataTable.AddColumn("Master", "DB_CR_FLAG", "Boolean")
+F.Data.DataTable.AddColumn("Master", "Cleared", "String")
+F.Data.DataTable.AddColumn("Master", "Total", "String")
+ 
+V.Global.sStart.Set(V.Screen.Form!dtpStart.Value)
+V.Global.sEnd.Set(V.Screen.Form!dtpEnd.Value)
+
+F.Intrinsic.UI.ChangeWaitStatus("Loading ck_18_31_32 data",1,1,7)
+Function.Intrinsic.Control.CallSub(ck_18_31_32)
+F.Intrinsic.UI.ChangeWaitStatus("Loading ap_10 data",2,1,7)
+Function.Intrinsic.Control.CallSub(ap_10)
+F.Intrinsic.UI.ChangeWaitStatus("Loading gl_30 data",3,1,7)
+Function.Intrinsic.Control.CallSub(gl_30)
+F.Intrinsic.UI.ChangeWaitStatus("Loading ar_11 data",4,1,7)
+Function.Intrinsic.Control.CallSub(ar_11)
+F.Intrinsic.UI.ChangeWaitStatus("Loading gl_20 data",5,1,7)
+Function.Intrinsic.Control.CallSub(gl_20)
+F.Intrinsic.UI.ChangeWaitStatus("Loading payroll data",6,1,7)
+Function.Intrinsic.Control.CallSub(payroll)
+
+V.Local.sExp.Set("IIF(DB_CR_FLAG, Amount, '')")
+F.Data.DataTable.AddExpressionColumn("Master", "Debt", "String", V.Local.sExp)
+
+V.Local.sExp.Set("IIF(DB_CR_FLAG, '', Amount)")
+F.Data.DataTable.AddExpressionColumn("Master", "Credit", "String", V.Local.sExp)
+
+
+V.Local.sSort.Set("Dates ASC")
+F.Data.DataView.Create("Master", "Master_V", 22,"", V.Local.sSort )
+
+F.Intrinsic.UI.ChangeWaitStatus("Calculating Totals",7,1,7)
+Function.Intrinsic.Control.CallSub(totalsvalue)
+
+
+F.Data.DataView.Create("Master$Master_Child", "Master_Child_V")
+F.Data.DataTable.AddRelation("Master", "BATCH", "Master$Master_Child", "BATCH")
+
+
+F.Data.DataView.Create("Master$AR_11_Child", "AR_11_Child_V")
+F.Data.DataTable.AddRelation("Master", "BATCH", "Master$AR_11_Child", "BATCH")
+
+
+GUI.Form.GsGrid.AddGridViewFromDataView("Grid", "Master","Master_V")
+
+GUI.Form.GsGrid.AddGridviewFromDataview("GridChild", "Master", "Master_Child_V")
+
+GUI.Form.GsGrid.AddGridviewFromDataview("GridChildAR_11", "Master", "AR_11_Child_V")
+
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "BATCH", "Visible", FALSE)
+'remove columns from grid
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Amount", "Visible", False)
+GUI.Form.GsGrid.SetColumnProperty("Grid", "BATCH", "Visible", False)
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Vendor", "Visible", False)
+GUI.Form.GsGrid.SetColumnProperty("GridChildAR_11", "BATCH", "Visible", False)
+
+'caption
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Dates", "Caption", "Date")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "CHK_Number", "Caption", "Ck Number")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Name_Desc", "Caption", "Name/Description")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "DB_CR_FLAG", "Caption", "DR/CR")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Total", "Caption", "Running Total")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "BATCH", "Caption", "BATCH-Batch_Line")
+'order
+'GUI.Form.GsGrid.SetColumnProperty("Grid", "BATCH", "VisibleIndex", "0")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Dates", "VisibleIndex", "0")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "CHK_Number", "VisibleIndex", "1")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Name_Desc", "VisibleIndex", "2")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "DB_CR_FLAG", "VisibleIndex", "3")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Cleared", "VisibleIndex", "4")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Debt", "VisibleIndex", "5")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Credit", "VisibleIndex", "6")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Total", "VisibleIndex", "7")
+'read only
+Gui.Form.GsGrid.SetGridViewProperty("Grid", "Editable", False)
+Gui.Form.GsGrid.SetGridViewProperty("Grid", "ReadOnly", True)
+Gui.Form.GsGrid.SetGridViewProperty("GridChild", "Editable", False)
+Gui.Form.GsGrid.SetGridViewProperty("GridChild", "ReadOnly", True)
+
+'date display
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Dates", "DisplayCustomDatetime", "d")
+'GUI.Form.GsGrid.SetColumnProperty("GridChild", "CHK_Date", "DisplayCustomDatetime", "d")
+
+'debt and credit right justify
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Debt", "CellHAlignment", "far")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Credit", "CellHAlignment", "far")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Total", "CellHAlignment", "far")
+
+'Dates DB_CR_FLAG Cleared centered
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Dates", "CellHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "DB_CR_FLAG", "CellHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Cleared", "CellHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "CHK_Number", "CellHAlignment", "center")
+
+'center header
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Dates", "HeaderHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "CHK_Number", "HeaderHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Name_Desc", "HeaderHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "DB_CR_FLAG", "HeaderHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Cleared", "HeaderHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Debt", "HeaderHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Credit", "HeaderHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Total", "HeaderHAlignment", "center")
+
+'color header
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Dates", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "CHK_Number", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Name_Desc", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "DB_CR_FLAG", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "BATCH", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Debt", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Credit", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Cleared", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Total", "HeaderBackColor", "Silver")
+'color child
+GUI.Form.GsGrid.SetColumnProperty("GridChildAR_11", "Description", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("GridChildAR_11", "Amount", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "INVOICE_NO", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "CHK_GROSS", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "CHK_DISC", "HeaderBackColor", "Silver")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "CHK_NET", "HeaderBackColor", "Silver")
+'set width header
+GUI.Form.GsGrid.SetColumnProperty("Grid", "BATCH", "MinWidth", "100")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Dates", "MinWidth", "125")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "CHK_Number", "MinWidth", "150")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Name_Desc", "MinWidth", "250")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "DB_CR_FLAG", "MinWidth", "100")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Cleared", "MinWidth", "100")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Debt", "MinWidth", "150")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Credit", "MinWidth", "150")
+GUI.Form.GsGrid.SetColumnProperty("Grid", "Total", "MinWidth", "150")
+'set width child tables
+GUI.Form.GsGrid.SetColumnProperty("GridChildAR_11", "Description", "MaxWidth", "200")
+GUI.Form.GsGrid.SetColumnProperty("GridChildAR_11", "Amount", "MaxWidth", "150")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "INVOICE_NO", "MaxWidth", "150")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "CHK_GROSS", "MaxWidth", "150")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "CHK_DISC", "MaxWidth", "150")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "CHK_NET", "MaxWidth", "150")
+'set column title position child tables
+GUI.Form.GsGrid.SetColumnProperty("GridChildAR_11", "Description", "HeaderHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("GridChildAR_11", "Amount", "HeaderHAlignment", "far")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "INVOICE_NO", "HeaderHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "CHK_GROSS", "HeaderHAlignment", "far")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "CHK_DISC", "HeaderHAlignment", "far")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "CHK_NET", "HeaderHAlignment", "far")
+'set child cell position
+GUI.Form.GsGrid.SetColumnProperty("GridChildAR_11", "Description", "CellHAlignment", "center")
+GUI.Form.GsGrid.SetColumnProperty("GridChild", "INVOICE_NO", "CellHAlignment", "center")
+
+Gui.Form.GsGrid.SetGridViewProperty("Grid", "Enableappearanceoddrow", True)
+Gui.Form.GsGrid.Anchor(15)
+GUI.Form.GsGrid.MainView("Grid")
+GUI.Form..Show
+
+F.Intrinsic.UI.CloseWaitDialog
+Gui.Form.cmdDisplay.Enabled(True)
+
+F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.Label("cmdDisplay_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4444_AccountRegister.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	Function.Intrinsic.Control.CallSub(form_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.cmdDisplay_Click.End
+
+Program.Sub.ChooseAcct.Start
+F.Intrinsic.Control.SetErrorHandler("ChooseAcct_Err")
+F.Intrinsic.Control.ClearErrors
+V.Local.sError.Declare(String)
+
+F.Data.DataTable.CreateFromSQL("CASH", "con", "Select GL_CASH_ACCT From CASH_ACCOUNT", True)
+'GUI.Form.ddlCash.AddItem("200")
+GUI.Form.ddlCash.AddItems("Datatable", "CASH", "GL_CASH_ACCT", "GL_CASH_ACCT")
+
+F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.Label("ChooseAcct_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4444_AccountRegister.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	Function.Intrinsic.Control.CallSub(form_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.ChooseAcct.End
+
+Program.Sub.CK_18_31_32.Start
+F.Intrinsic.Control.SetErrorHandler("CK_18_31_32_Err")
+F.Intrinsic.Control.ClearErrors
+V.Local.sError.Declare(String)
+
+V.Local..BulkDeclareString(ssql,sAcct, sRet, sBatch, sAcctRec, sDate)
+V.Local.iC.Declare(Long)
+
+v.Local.snewStart.Declare
+v.Local.snewEnd.Declare
+V.Global.sCash.Set(V.Screen.Form!ddlCash.Text)
+'amount from all checks added ACCTS_PAY_ACCT
+Function.ODBC.Connection!con.ExecuteAndReturn("Select Top 1 ACCT_FULL From V_ACCTS_PAY_ACCT", V.Local.sAcct) 
+
+'not sure why this was added
+Function.ODBC.Connection!con.ExecuteAndReturn("Select Top 1 ACCT_FULL From V_ACCTS_REC_ACCT", V.Local.sAcctRec) 
+
+v.Global.snewStart.Set(v.Global.sStart.PervasiveDate)
+v.Global.snewEnd.Set(v.Global.sEnd.PervasiveDate)
+f.Intrinsic.String.Replace(V.Global.sStart.PervasiveDate, "-", "", v.Global.sStart)
+f.Intrinsic.String.Replace(V.Global.sEnd.PervasiveDate, "-", "", v.Global.sEnd)
+'get the batch numbers
+F.Intrinsic.String.Build("Select Distinct BATCH From V_GL_DETAIL Where APPL_TYPE  = '03' And TRAN_TYPE IN ('18','31','32') And POST_DATE Between '{0}' And '{1}' And GL_NUMBER = '{2}' ", V.Global.sStart, V.Global.sEnd,V.Screen.Form!ddlCash.Text,V.Local.ssql) 
+Function.ODBC.Connection!con.ExecuteAndReturn(V.Local.ssql,V.Local.sRet)
+F.Intrinsic.String.Replace(V.Local.sRet, "*!*", "",V.Local.sRet)
+F.Intrinsic.String.Replace(V.Local.sRet, "#$#", "','",V.Local.sRet)
+'master table 
+
+'F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(Left(CHK_DATE,4))+'-'+CHK_Number as BATCH, CHK_Number AS CHK_Number ,Cast(CHK_DATE as Date) as Dates, Vendor,'' as Name_Desc From V_GL_DETAIL Where APPL_TYPE  = '03' And TRAN_TYPE IN ('18','31','32') And CHK_DATE Between '{0}' And '{1}' And GL_NUMBER IN ('{2}', '{3}') And BATCH In ('{4}')", V.Global.sStart, V.Global.sEnd,V.Local.sAcct, V.Local.sAcctRec,V.Local.sRet,V.Local.ssql) 
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(Left(trans_date_sql,4))+'-'+CHECK_NUMBER as BATCH, CHECK_NUMBER AS CHK_Number ,Cast(trans_date_sql as Date) as Dates, RTRIM(CUST_VENDOR) as Vendor,'' as Name_Desc From V_GL_AP_CHECK_DTL Where TRAN_TYPE IN ('18','31','32') And trans_date_sql Between '{0}' And '{1}' And GL_NUMBER IN ('{2}', '{3}') And BATCH In ('{4}')", V.Global.snewStart, V.Global.snewEnd,V.Local.sAcct, V.Local.sAcctRec,V.Local.sRet,V.Local.ssql) 
+F.Data.DataTable.CreateFromSQL("CK_18_31_32", "con", V.Local.ssql, True)
+F.Data.DataTable.AddColumn("CK_18_31_32", "Amount", "String")
+F.Data.DataTable.AddColumn("CK_18_31_32", "Cleared", "String")
+F.Data.DataTable.AddColumn("CK_18_31_32", "DB_CR_FLAG", "Boolean")
+'sum the check amounts
+F.Intrinsic.Control.For(V.Local.iC, 0, V.DataTable.CK_18_31_32.RowCount--, 1)
+     V.Local.sDate.set(Variable.DataTable.CK_18_31_32(V.Local.iC).Dates!FieldVal)
+     'f.Intrinsic.String.Replace(v.Local.sDate.PervasiveDate, "-", "", v.Local.sDate)
+	F.Intrinsic.String.Build("Select Sum(CHECK_NET_CMPNY)  as Amount From V_GL_AP_CHECK_DTL Where CHECK_NUMBER = '{0}' And GL_NUMBER = '{1}' And trans_date_sql = '{2}'", Variable.DataTable.CK_18_31_32(V.Local.iC).CHK_Number!FieldVal, V.Local.sAcct, V.Local.sDate.PervasiveDate ,V.Local.ssql) 
+	F.Data.DataTable.CreateFromSQL("DT", "con", V.Local.ssql)
+	Function.Data.DataTable.SetValue("CK_18_31_32", V.Local.iC, "Amount",Variable.DataTable.DT(0).Amount!FieldVal) 
+	F.Data.Datatable.Close("DT")
+F.Intrinsic.Control.Next(V.Local.iC)
+'fill Name_desc via vendor
+F.Data.Dictionary.CreateFromSQL("dict", "con", "Select Rtrim(Vendor), NAME_VENDOR as Name_Desc From V_Vendor_Master")
+F.Data.Dictionary.SetDefaultReturn("dict", "")
+F.Data.DataTable.FillFromDictionary("CK_18_31_32", "dict", "Vendor", "Name_Desc")
+F.Data.Dictionary.Close("dict")
+'fill cleared	
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH_NUM))+'-'+rTrim(Left(DATE_CHECK,4))+'-'+CHECK_NUM as BATCH, Flag_Ck_Cleared as Cleared From V_AP_OPEN_ITEMS Where DATE_BATCH Between '{0}' And '{1}' And CHECK_NUM <> '' UNION ALL Select Distinct rTrim(lTrim(CHECK_NUM))+'-'+rTrim(lTrim(BATCH_NUM))+'-'+rTrim(Left(DATE_BATCH,4)) as BATCH, Flag_Ck_Cleared as Cleared From V_AP_HIST Where DATE_BATCH Between '{0}' And '{1}' And CHECK_NUM <> ''", V.Global.snewStart, V.Global.snewEnd,V.Local.ssql) 
+F.Data.Dictionary.CreateFromSQL("dict", "con", V.Local.ssql)
+F.Data.Dictionary.SetDefaultReturn("dict", "0")
+F.Data.DataTable.FillFromDictionary("CK_18_31_32", "dict","BATCH", "Cleared")
+F.Data.Dictionary.Close("dict")
+'fill DB_CR_FLAG
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(Left(trans_date_sql,4))+'-'+CHECK_NUMBER as BATCH, DB_CR_FLAG From V_GL_AP_CHECK_DTL Where TRAN_TYPE IN ('18','31','32') And trans_date_sql Between '{0}' And '{1}' And GL_NUMBER IN ('{2}', '{3}') And BATCH In ('{4}')", V.Global.snewStart, V.Global.snewEnd,V.Local.sAcct, V.Local.sAcctRec,V.Local.sRet,V.Local.ssql) 
+F.Data.Dictionary.CreateFromSQL("dict", "con", V.Local.ssql)
+F.Data.Dictionary.SetDefaultReturn("dict", "0")
+F.Data.DataTable.FillFromDictionary("CK_18_31_32", "dict","BATCH", "DB_CR_FLAG")
+F.Data.Dictionary.Close("dict")
+Function.Data.DataTable.Merge("CK_18_31_32", "Master", TRUE, 4)
+Function.Data.DataTable.Close("CK_18_31_32")
+
+''''''''''''''''''''''''''''''''''''''''''GL_HISTORY TABLE"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+'get the batch numbers
+F.Intrinsic.String.Build("Select Distinct BATCH From V_GL_AP_CHECK_DTL_H Where TRAN_TYPE IN ('18','31','32') And POST_DATE Between '{0}' And '{1}' And GL_NUMBER = '{2}' ", V.Global.snewStart, V.Global.snewEnd,V.Screen.Form!ddlCash.Text,V.Local.ssql) 
+Function.ODBC.Connection!con.ExecuteAndReturn(V.Local.ssql,V.Local.sRet)
+F.Intrinsic.String.Replace(V.Local.sRet, "*!*", "",V.Local.sRet)
+F.Intrinsic.String.Replace(V.Local.sRet, "#$#", "','",V.Local.sRet)
+'master table 
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(Left(trans_date_sql,4))+'-'+CHECK_NUMBER as BATCH, CHECK_NUMBER AS CHK_Number,Cast(trans_date_sql as Date) as Dates, RTRIM(CUST_VENDOR) as Vendor,'' as Name_Desc From V_GL_AP_CHECK_DTL_H Where TRAN_TYPE IN ('18','31','32') And trans_date_sql Between '{0}' And '{1}' And GL_NUMBER IN ('{2}', '{3}') And BATCH In ('{4}')", V.Global.snewStart, V.Global.snewEnd,V.Local.sAcct, V.Local.sAcctRec,V.Local.sRet,V.Local.ssql) 
+F.Data.DataTable.CreateFromSQL("CK_18_31_32", "con", V.Local.ssql, True)
+F.Data.DataTable.AddColumn("CK_18_31_32", "Amount", "String")
+F.Data.DataTable.AddColumn("CK_18_31_32", "Cleared", "String")
+F.Data.DataTable.AddColumn("CK_18_31_32", "DB_CR_FLAG", "Boolean")
+'sum the check amounts
+F.Intrinsic.Control.For(V.Local.iC, 0, V.DataTable.CK_18_31_32.RowCount--, 1)
+     V.Local.sDate.set(Variable.DataTable.CK_18_31_32(V.Local.iC).Dates!FieldVal)
+     'f.Intrinsic.String.Replace(v.Global.sDate.PervasiveDate, "-", "", v.Global.sDate)
+	F.Intrinsic.String.Build("Select Sum(CHECK_NET_CMPNY)  as Amount From V_GL_AP_CHECK_DTL_H Where CHECK_NUMBER = '{0}' And GL_NUMBER = '{1}' And trans_date_sql = '{2}'", Variable.DataTable.CK_18_31_32(V.Local.iC).CHK_Number!FieldVal, V.Local.sAcct, V.Local.sDate.PervasiveDate ,V.Local.ssql) 
+	F.Data.DataTable.CreateFromSQL("DT", "con", V.Local.ssql)
+	Function.Data.DataTable.SetValue("CK_18_31_32", V.Local.iC, "Amount",Variable.DataTable.DT(0).Amount!FieldVal) 
+	F.Data.Datatable.Close("DT")
+F.Intrinsic.Control.Next(V.Local.iC)
+'fill Name_desc via vendor
+F.Data.Dictionary.CreateFromSQL("dict", "con", "Select Rtrim(Vendor), NAME_VENDOR as Name_Desc From V_Vendor_Master")
+F.Data.Dictionary.SetDefaultReturn("dict", "")
+F.Data.DataTable.FillFromDictionary("CK_18_31_32", "dict", "Vendor", "Name_Desc")
+F.Data.Dictionary.Close("dict")
+'fill cleared	
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH_NUM))+'-'+rTrim(Left(DATE_CHECK,4))+'-'+CHECK_NUM as BATCH, Flag_Ck_Cleared as Cleared From V_AP_OPEN_ITEMS Where DATE_BATCH Between '{0}' And '{1}' And CHECK_NUM <> '' UNION ALL Select Distinct rTrim(lTrim(CHECK_NUM))+'-'+rTrim(lTrim(BATCH_NUM))+'-'+rTrim(Left(DATE_BATCH,4)) as BATCH, Flag_Ck_Cleared as Cleared From V_AP_HIST Where DATE_BATCH Between '{0}' And '{1}' And CHECK_NUM <> ''", V.Global.snewStart, V.Global.snewEnd,V.Local.ssql) 
+F.Data.Dictionary.CreateFromSQL("dict", "con", V.Local.ssql)
+F.Data.Dictionary.SetDefaultReturn("dict", "")
+F.Data.DataTable.FillFromDictionary("CK_18_31_32", "dict","BATCH", "Cleared")
+F.Data.Dictionary.Close("dict")
+'fill DB_CR_FLAG
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(Left(trans_date_sql,4))+'-'+CHECK_NUMBER as BATCH, DB_CR_FLAG From V_GL_AP_CHECK_DTL_H Where TRAN_TYPE IN ('18','31','32') And trans_date_sql Between '{0}' And '{1}' And GL_NUMBER IN ('{2}', '{3}') And BATCH In ('{4}')", V.Global.snewStart, V.Global.snewEnd,V.Local.sAcct, V.Local.sAcctRec,V.Local.sRet,V.Local.ssql) 
+F.Data.Dictionary.CreateFromSQL("dict", "con", V.Local.ssql)
+F.Data.Dictionary.SetDefaultReturn("dict", "")
+F.Data.DataTable.FillFromDictionary("CK_18_31_32", "dict","BATCH", "DB_CR_FLAG")
+F.Data.Dictionary.Close("dict")
+Function.Data.DataTable.Merge("CK_18_31_32", "Master", TRUE, 4)
+Function.Data.DataTable.Close("CK_18_31_32")
+
+'master child table 
+F.Intrinsic.String.Build("Select INVOICE_NO,CHECK_GROSS_CMPNY as CHK_GROSS, CHECK_DISC_CMPNY as CHK_DISC,CHECK_NET_CMPNY as CHK_NET, rTrim(lTrim(BATCH))+'-'+rTrim(Left(trans_date_sql,4))+'-'+CHECK_NUMBER as BATCH From V_GL_AP_CHECK_DTL Where TRAN_TYPE IN ('18','31','32') And trans_date_sql Between '{0}' And '{1}' And GL_NUMBER IN ('{2}', '{3}') And BATCH In ('{4}') UNION ALL Select INVOICE_NO,CHECK_GROSS_CMPNY as CHK_GROSS, CHECK_DISC_CMPNY as CHK_DISC,CHECK_NET_CMPNY as CHK_NET, rTrim(lTrim(BATCH))+'-'+rTrim(Left(trans_date_sql,4))+'-'+CHECK_NUMBER as BATCH From V_GL_AP_CHECK_DTL_H Where TRAN_TYPE IN ('18','31','32') And trans_date_sql Between '{0}' And '{1}' And GL_NUMBER IN ('{2}', '{3}') And BATCH In ('{4}') ", V.Global.snewStart, V.Global.snewEnd, V.Local.sAcctRec,V.Local.sAcct, V.Local.sRet,V.Local.ssql) 
+	F.Data.DataTable.CreateFromSQL("Master$Master_Child", "con", V.Local.ssql, True)
+
+
+F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.Label("CK_18_31_32_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4444_AccountRegister.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	Function.Intrinsic.Control.CallSub(form_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.CK_18_31_32.End
+
+Program.Sub.AP_10.Start
+F.Intrinsic.Control.SetErrorHandler("AP_10_Err")
+F.Intrinsic.Control.ClearErrors
+V.Local.sError.Declare(String)
+
+
+V.Local..BulkDeclareString(ssql)
+
+'master table
+F.Intrinsic.String.Build("Select Cast(POST_DATE as Date) as Dates, CAST((CAST(IF(AMOUNT_CMPNY<0, AMOUNT_CMPNY * -1, AMOUNT_CMPNY) as DECIMAL(20,2))) as VARCHAR(20)) as Amount, BATCH as CHK_Number,rTrim(lTrim(BATCH))+'-'+rTrim(lTrim(LINE))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, DESCRIPTION as Name_Desc, DB_CR_FLAG, '' as Cleared From V_GL_DETAIL Where APPL_TYPE  = '01' And TRAN_TYPE = '10' And POST_DATE Between '{0}' And '{1}' And GL_NUMBER = '{2}'", V.Global.snewStart, V.Global.snewEnd, V.Screen.Form!ddlCash.Text,V.Local.ssql) 
+F.Data.DataTable.CreateFromSQL("AP_10", "con", V.Local.ssql, True)
+'cleared
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(lTrim(BATCH_LINE))+'-'+rTrim(Left(P_DATE,4)) as BATCH, Cleared_Flag as Cleared From V_DEPOSIT_IDS Where P_DATE Between '{0}' And '{1}'", V.Global.snewStart, V.Global.snewEnd,V.Local.ssql) 
+F.Data.Dictionary.CreateFromSQL("dict", "con", V.Local.ssql)
+F.Data.Dictionary.SetDefaultReturn("dict", "")
+F.Data.DataTable.FillFromDictionary("AP_10", "dict","BATCH", "Cleared")
+F.Data.Dictionary.Close("dict")
+Function.Data.DataTable.Merge("AP_10", "Master", True, 4)
+Function.Data.DataTable.Close("AP_10")
+
+'''''''''''''''''''''''''''''''''''''''''GL_HISTORY"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'master table
+F.Intrinsic.String.Build("Select Cast(POST_DATE as Date) as Dates, CAST((CAST(IF(AMOUNT_CMPNY<0, AMOUNT_CMPNY * -1, AMOUNT_CMPNY) as DECIMAL(20,2))) as VARCHAR(20)) as Amount, BATCH as CHK_Number,rTrim(lTrim(BATCH))+'-'+rTrim(lTrim(LINE))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, DESCRIPTION as Name_Desc, DB_CR_FLAG, '' as Cleared From V_GL_DETAIL_HISTORY Where APPL_TYPE  = '01' And TRAN_TYPE = '10' And POST_DATE Between '{0}' And '{1}' And GL_NUMBER = '{2}'", V.Global.snewStart, V.Global.snewEnd, V.Screen.Form!ddlCash.Text,V.Local.ssql) 
+F.Data.DataTable.CreateFromSQL("AP_10", "con", V.Local.ssql, True)
+'cleared
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(lTrim(BATCH_LINE))+'-'+rTrim(Left(P_DATE,4)) as BATCH, Cleared_Flag as Cleared From V_DEPOSIT_IDS Where P_DATE Between '{0}' And '{1}'", V.Global.snewStart, V.Global.snewEnd,V.Local.ssql) 
+F.Data.Dictionary.CreateFromSQL("dict", "con", V.Local.ssql)
+F.Data.Dictionary.SetDefaultReturn("dict", "")
+F.Data.DataTable.FillFromDictionary("AP_10", "dict","BATCH", "Cleared")
+F.Data.Dictionary.Close("dict")
+Function.Data.DataTable.Merge("AP_10", "Master", True, 4)
+Function.Data.DataTable.Close("AP_10")
+
+
+F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.Label("AP_10_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4444_AccountRegister.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	Function.Intrinsic.Control.CallSub(form_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.AP_10.End
+
+Program.Sub.GL_30.Start
+F.Intrinsic.Control.SetErrorHandler("GL_30_Err")
+F.Intrinsic.Control.ClearErrors
+V.Local.sError.Declare(String)
+
+
+V.Local..BulkDeclareString(ssql)
+
+'master table
+F.Intrinsic.String.Build("Select Cast(POST_DATE_SQL as Date) as Dates, CAST((CAST(IF(AMOUNT_CMPNY<0, AMOUNT_CMPNY * -1, AMOUNT_CMPNY) as DECIMAL(20,2))) as VARCHAR(20)) as Amount, rTrim(lTrim(BATCH))+'-'+rTrim(lTrim(LINE))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, BATCH as CHK_Number, DESCRIPTION as Name_Desc, DB_CR_FLAG, 'Y' as Cleared From V_GL_DETAIL Where APPL_TYPE  = '05' And TRAN_TYPE = '30' And POST_DATE_SQL Between '{0}' And '{1}' And GL_NUMBER = '{2}'", V.Global.snewStart, V.Global.snewEnd, V.Screen.Form!ddlCash.Text,V.Local.ssql) 
+F.Data.DataTable.CreateFromSQL("GL_30", "con", V.Local.ssql, True)
+
+f.Data.Dictionary.Create("boolDict")
+f.Data.Dictionary.AddItem("boolDict", True, False)
+f.Data.Dictionary.AddItem("boolDict", False, True)
+f.Data.Dictionary.SetDefaultReturn("boolDict", False)
+f.Data.Datatable.FillFromDictionary("GL_30", "boolDict", "DB_CR_FLAG")
+
+Function.Data.DataTable.Merge("GL_30", "Master", True, 4)
+Function.Data.DataTable.Close("GL_30")
+
+'''''''''''''''''''''''''''''''''''''''GL_HISTORY""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+'master table
+F.Intrinsic.String.Build("Select Cast(POST_DATE_SQL as Date) as Dates, CAST((CAST(IF(AMOUNT_CMPNY<0, AMOUNT_CMPNY * -1, AMOUNT_CMPNY) as DECIMAL(20,2))) as VARCHAR(20)) as Amount, rTrim(lTrim(BATCH))+'-'+rTrim(lTrim(LINE))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, BATCH as CHK_Number, DESCRIPTION as Name_Desc, DB_CR_FLAG, 'Y' as Cleared From V_GL_DETAIL_HISTORY Where APPL_TYPE  = '05' And TRAN_TYPE = '30' And POST_DATE_SQL Between '{0}' And '{1}' And GL_NUMBER = '{2}'", V.Global.snewStart, V.Global.snewEnd, V.Screen.Form!ddlCash.Text,V.Local.ssql) 
+F.Data.DataTable.CreateFromSQL("GL_30", "con", V.Local.ssql, True)
+
+f.Data.Datatable.FillFromDictionary("GL_30", "boolDict", "DB_CR_FLAG")
+f.Data.Dictionary.Close("boolDict")
+
+Function.Data.DataTable.Merge("GL_30", "Master", True, 4)
+Function.Data.DataTable.Close("GL_30")
+
+F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.Label("GL_30_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4444_AccountRegister.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	Function.Intrinsic.Control.CallSub(form_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.GL_30.End
+
+Program.Sub.AR_11.Start
+F.Intrinsic.Control.SetErrorHandler("AR_11_Err")
+F.Intrinsic.Control.ClearErrors
+V.Local.sError.Declare(String)
+
+
+V.Local..BulkDeclareString(ssql, sRet,sBatchNum, sAmount)
+V.Local.iC.Declare(Long)
+
+'master table
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, BATCH as CHK_Number, Cast(POST_DATE as Date) as Dates, '' as Amount, '' As Cleared, DB_CR_FLAG ,'DEPOSIT' as Name_Desc  From V_GL_DETAIL Where APPL_TYPE  = '02' And TRAN_TYPE = '11' And POST_DATE Between '{0}' And '{1}' And GL_NUMBER = '{2}'", V.Global.snewStart, V.Global.snewEnd, V.Screen.Form!ddlCash.Text,V.Local.ssql)
+F.Data.DataTable.CreateFromSQL("AR_11", "con", V.Local.ssql, True)
+Function.ODBC.Connection!con.ExecuteAndReturn(V.Local.ssql,V.Local.sRet)
+Function.Intrinsic.Control.If(V.Local.sRet, <>, "")
+	F.Intrinsic.String.Split(V.Local.sRet, "#$#", V.Local.sRet)
+	F.Intrinsic.Control.For(V.Local.iC, 0, V.Local.sRet.UBound, 1)
+		F.Intrinsic.String.Split(V.Local.sRet(V.Local.iC), "*!*", V.Local.sBatchNum)
+		F.Intrinsic.String.Build("Select Sum(AMOUNT_CMPNY) as Amount From V_GL_Detail Where BATCH = '{0}' And GL_NUMBER = '{1}'", V.Local.sBatchNum(1), V.Screen.Form!ddlCash.Text,V.Local.ssql)
+		Function.ODBC.Connection!con.ExecuteAndReturn(V.Local.ssql,V.Local.sAmount)
+		Function.Data.DataTable.SetValue("AR_11", V.Local.iC, "Amount",V.Local.sAmount) 
+	F.Intrinsic.Control.Next(V.Local.iC)
+Function.Intrinsic.Control.EndIf
+'fill DB_CR_FLAG
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, IF(DB_CR_FLAG = '0', '1', '0') as DB_CR_FLAG From V_GL_DETAIL Where APPL_TYPE  = '02' And TRAN_TYPE IN ('11') And POST_DATE Between '{0}' And '{1}' And GL_NUMBER = '{2}' ", V.Global.snewStart, V.Global.snewEnd, V.Screen.Form!ddlCash.Text,V.Local.ssql)
+F.Data.Dictionary.CreateFromSQL("dict", "con", V.Local.ssql)
+F.Data.Dictionary.SetDefaultReturn("dict", "")
+F.Data.DataTable.FillFromDictionary("AR_11", "dict","BATCH", "DB_CR_FLAG")
+F.Data.Dictionary.Close("dict")
+'cleared
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(Left(P_DATE,4)) as BATCH, Cleared_Flag as Cleared From V_DEPOSIT_IDS Where P_DATE Between '{0}' And '{1}'", V.Global.snewStart, V.Global.snewEnd,V.Local.ssql) 
+F.Data.Dictionary.CreateFromSQL("dict", "con", V.Local.ssql)
+F.Data.Dictionary.SetDefaultReturn("dict", "")
+F.Data.DataTable.FillFromDictionary("AR_11", "dict","BATCH", "Cleared")
+F.Data.Dictionary.Close("dict")
+Function.Data.DataTable.Merge("AR_11", "Master", True, 4)
+Function.Data.DataTable.Close("AR_11")
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''GL_DETAIL_HISTORY""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+'master table
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, BATCH as CHK_Number, Cast(POST_DATE as Date) as Dates, '' as Amount, '' As Cleared, DB_CR_FLAG ,'DEPOSIT' as Name_Desc  From V_GL_DETAIL_HISTORY Where APPL_TYPE  = '02' And TRAN_TYPE = '11' And POST_DATE Between '{0}' And '{1}' And GL_NUMBER = '{2}'", V.Global.snewStart, V.Global.snewEnd, V.Screen.Form!ddlCash.Text,V.Local.ssql)
+F.Data.DataTable.CreateFromSQL("AR_11", "con", V.Local.ssql, True)
+Function.ODBC.Connection!con.ExecuteAndReturn(V.Local.ssql,V.Local.sRet)
+Function.Intrinsic.Control.If(V.Local.sRet, <>, "")
+	F.Intrinsic.String.Split(V.Local.sRet, "#$#", V.Local.sRet)
+	F.Intrinsic.Control.For(V.Local.iC, 0, V.Local.sRet.UBound, 1)
+		F.Intrinsic.String.Split(V.Local.sRet(V.Local.iC), "*!*", V.Local.sBatchNum)
+		F.Intrinsic.String.Build("Select Sum(Amount) as Amount From V_GL_Detail_HISTORY Where BATCH = '{0}' And GL_NUMBER = '{1}'", V.Local.sBatchNum(1), V.Screen.Form!ddlCash.Text,V.Local.ssql)
+		Function.ODBC.Connection!con.ExecuteAndReturn(V.Local.ssql,V.Local.sAmount)
+		Function.Data.DataTable.SetValue("AR_11", V.Local.iC, "Amount",V.Local.sAmount) 
+	F.Intrinsic.Control.Next(V.Local.iC)
+Function.Intrinsic.Control.EndIf
+'fill DB_CR_FLAG
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, IF(DB_CR_FLAG = '0', '1', '0') as DB_CR_FLAG From V_GL_DETAIL_HISTORY Where APPL_TYPE  = '02' And TRAN_TYPE IN ('11') And POST_DATE Between '{0}' And '{1}' And GL_NUMBER = '{2}' ", V.Global.snewStart, V.Global.snewEnd, V.Screen.Form!ddlCash.Text,V.Local.ssql)
+F.Data.Dictionary.CreateFromSQL("dict", "con", V.Local.ssql)
+F.Data.Dictionary.SetDefaultReturn("dict", "")
+F.Data.DataTable.FillFromDictionary("AR_11", "dict","BATCH", "DB_CR_FLAG")
+F.Data.Dictionary.Close("dict")
+'cleared
+F.Intrinsic.String.Build("Select Distinct rTrim(lTrim(BATCH))+'-'+rTrim(Left(P_DATE,4)) as BATCH, Cleared_Flag as Cleared From V_DEPOSIT_IDS Where P_DATE Between '{0}' And '{1}'", V.Global.snewStart, V.Global.snewEnd,V.Local.ssql) 
+F.Data.Dictionary.CreateFromSQL("dict", "con", V.Local.ssql)
+F.Data.Dictionary.SetDefaultReturn("dict", "")
+F.Data.DataTable.FillFromDictionary("AR_11", "dict","BATCH", "Cleared")
+F.Data.Dictionary.Close("dict")
+Function.Data.DataTable.Merge("AR_11", "Master", True, 4)
+Function.Data.DataTable.Close("AR_11")
+
+'master child table
+F.Intrinsic.String.Build("Select rTrim(lTrim(BATCH))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, DESCRIPTION as Description , AMOUNT_CMPNY as Amount From V_GL_DETAIL Where APPL_TYPE  = '02' And TRAN_TYPE = '11' And POST_DATE Between '{0}' And '{1}' And GL_NUMBER = '{2}' UNION ALL Select rTrim(lTrim(BATCH))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, DESCRIPTION as Description ,AMOUNT_CMPNY as Amount From V_GL_DETAIL_HISTORY Where APPL_TYPE  = '02' And TRAN_TYPE = '11' And POST_DATE Between '{0}' And '{1}' And GL_NUMBER = '{2}'", V.Global.snewStart, V.Global.snewEnd, V.Screen.Form!ddlCash.Text,V.Local.ssql)
+F.Data.DataTable.CreateFromSQL("Master$AR_11_Child", "con", V.Local.ssql, True)
+
+F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.Label("AR_11_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4444_AccountRegister.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	Function.Intrinsic.Control.CallSub(form_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.AR_11.End
+
+Program.Sub.GL_20.Start
+F.Intrinsic.Control.SetErrorHandler("GL_20_Err")
+F.Intrinsic.Control.ClearErrors
+V.Local.sError.Declare(String)
+
+
+V.Local..BulkDeclareString(ssql)
+
+'master table
+F.Intrinsic.String.Build("Select Cast(POST_DATE_SQL as Date) as Dates, CAST((CAST(IF(AMOUNT_CMPNY<0, AMOUNT_CMPNY * -1, AMOUNT_CMPNY) as DECIMAL(20,2))) as VARCHAR(20)) as Amount, rTrim(lTrim(BATCH))+'-'+rTrim(lTrim(LINE))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, '' AS CHK_Number,DESCRIPTION as Name_Desc, DB_CR_FLAG, 'Y' as Cleared From V_GL_DETAIL Where APPL_TYPE  = '05' And TRAN_TYPE In ('20', '1', '2', '3') And POST_DATE_SQL Between '{0}' And '{1}' And GL_NUMBER = '{2}'", V.Global.snewStart, V.Global.snewEnd,V.Screen.Form!ddlCash.Text,V.Local.ssql) 
+F.Data.DataTable.CreateFromSQL("GL_20", "con", V.Local.ssql, True)
+
+Function.Data.DataTable.Merge("GL_20", "Master", True, 4)
+Function.Data.DataTable.Close("GL_20")
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''GL_DETAIL_HISTORY""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+'master table
+F.Intrinsic.String.Build("Select Cast(POST_DATE_SQL as Date) as Dates, CAST((CAST(IF(AMOUNT_CMPNY<0, AMOUNT_CMPNY * -1, AMOUNT_CMPNY) as DECIMAL(20,2))) as VARCHAR(20)) as Amount, rTrim(lTrim(BATCH))+'-'+rTrim(lTrim(LINE))+'-'+rTrim(Left(POST_DATE,4)) as BATCH, '' AS CHK_Number,DESCRIPTION as Name_Desc, DB_CR_FLAG, 'Y' as Cleared From V_GL_DETAIL_HISTORY Where APPL_TYPE  = '05' And TRAN_TYPE In ('20', '1', '2', '3') And POST_DATE_SQL Between '{0}' And '{1}' And GL_NUMBER = '{2}'", V.Global.snewStart, V.Global.snewEnd,V.Screen.Form!ddlCash.Text,V.Local.ssql) 
+F.Data.DataTable.CreateFromSQL("GL_20", "con", V.Local.ssql, True)
+
+Function.Data.DataTable.Merge("GL_20", "Master", True, 4)
+Function.Data.DataTable.Close("GL_20")
+
+F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.Label("GL_20_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4444_AccountRegister.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	Function.Intrinsic.Control.CallSub(form_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.GL_20.End
+
+Program.Sub.PAYROLL.Start
+F.Intrinsic.Control.SetErrorHandler("PAYROLL_Err")
+F.Intrinsic.Control.ClearErrors
+V.Local.sError.Declare(String)
+
+V.Local..BulkDeclareString(ssql, sAllow)
+V.Local.iID.Declare(Long)
+
+'check if allowed ro see payroll
+F.Intrinsic.String.Build("Select ASCII_FLAG From USER_OPTIONS Where ID = '{0}' And OPTION_ID = '000006'", V.Caller.User, V.Local.ssql)
+Function.ODBC.Connection!con.ExecuteAndReturn(V.Local.ssql,V.Local.sAllow)
+
+'master table
+Function.Intrinsic.Control.If(V.Local.sAllow, =, "Y")
+	'can view payroll
+	' if DB_CR_FLAG = C or D display as credit, = V display as debt
+	F.Intrinsic.String.Build("Select cast(CK_DATE as Date) as Dates, rTrim(CK_NO) as CHK_Number, CAST((CAST(IF(Amount<0, Amount * -1, Amount) as DECIMAL(20,2))) as VARCHAR(20)) as Amount, rTrim(CK_NO)+'-'+rTrim(Left(CK_DATE,4)) as BATCH, PAYEE as Name_Desc, cast(CK_OR_VOID as Boolean) as DB_CR_FLAG, '' as Cleared From V_PAYROLL_CHECKS Where CK_DATE Between '{0}' And '{1}'", V.Global.snewStart, V.Global.snewEnd,V.Local.ssql) 	
+	F.Data.DataTable.CreateFromSQL("PAYROLL", "con", V.Local.ssql, True)
+	F.Intrinsic.String.Build("Select Distinct Right('00000'+ Cast(CHECK_NUMBER as VarChar),6) as BATCH,FLAG_CLEARED as Cleared From V_PAY_HIST_DED Where trans_date_sql Between '{0}' And '{1}'", V.Global.snewStart, V.Global.snewEnd,V.Local.ssql) 
+	
+	f.Data.Dictionary.Create("boolDict")
+	f.Data.Dictionary.AddItem("boolDict", True, False)
+	f.Data.Dictionary.AddItem("boolDict", False, True)
+	f.Data.Dictionary.SetDefaultReturn("boolDict", False)
+	f.Data.Datatable.FillFromDictionary("PAYROLL", "boolDict", "DB_CR_FLAG")
+	F.Data.Dictionary.Close("boolDict")
+	
+	F.Data.Dictionary.CreateFromSQL("dict", "con", V.Local.ssql)
+	F.Data.Dictionary.SetDefaultReturn("dict", "")
+	F.Data.DataTable.FillFromDictionary("PAYROLL", "dict","BATCH", "Cleared")
+	F.Data.Dictionary.Close("dict")
+	Function.Data.DataTable.Merge("PAYROLL", "Master", True, 4)
+	Function.Data.DataTable.Close("PAYROLL")
+Function.Intrinsic.Control.Else
+	'cannot view payroll- sum the checks up Create 2 rows
+	F.Intrinsic.String.Build("Select CAST((CAST(SUM(Amount) as DECIMAL(20,2))) as VARCHAR(20)) as Amount, 'PAYROLL' As Name_Desc,  'PAYROLL CREDIT' as BATCH,  cast('0' as bit) as DB_CR_FLAG From V_PAYROLL_CHECKS Where CK_OR_VOID = 'D' And CK_DATE Between '{0}' And '{1}'", V.Global.snewStart, V.Global.snewEnd,V.Local.ssql) 
+	F.Data.DataTable.CreateFromSQL("PAYROLL2", "con", V.Local.ssql, True)
+	
+	f.Data.Dictionary.Create("boolDict")
+	f.Data.Dictionary.AddItem("boolDict", True, False)
+	f.Data.Dictionary.AddItem("boolDict", False, True)
+	f.Data.Dictionary.SetDefaultReturn("boolDict", False)
+	f.Data.Datatable.FillFromDictionary("PAYROLL2", "boolDict", "DB_CR_FLAG")
+	F.Data.Dictionary.Close("boolDict")
+	
+	Function.Data.DataTable.Merge("PAYROLL2", "Master", True, 4)
+	Function.Data.DataTable.Close("PAYROLL2")
+	F.Intrinsic.String.Build("Select CAST((CAST(SUM(Amount) as DECIMAL(20,2))) as VARCHAR(20)) as Amount, 'PAYROLL' As Name_Desc, 'PAYROLL VOID' as BATCH, cast('1' as bit) as DB_CR_FLAG From V_PAYROLL_CHECKS Where CK_OR_VOID = 'C' And CK_DATE Between '{0}' And '{1}'", V.Global.snewStart, V.Global.snewEnd,V.Local.ssql) 
+	F.Data.DataTable.CreateFromSQL("PAYROLL3", "con", V.Local.ssql, True)
+	
+	f.Data.Dictionary.Create("boolDict")
+	f.Data.Dictionary.AddItem("boolDict", True, False)
+	f.Data.Dictionary.AddItem("boolDict", False, True)
+	f.Data.Dictionary.SetDefaultReturn("boolDict", False)
+	f.Data.Datatable.FillFromDictionary("PAYROLL3", "boolDict", "DB_CR_FLAG")
+	F.Data.Dictionary.Close("boolDict")
+	
+	Function.Data.DataTable.Merge("PAYROLL3", "Master", True, 4)
+	Function.Data.DataTable.Close("PAYROLL3")
+Function.Intrinsic.Control.EndIf
+
+
+F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.Label("PAYROLL_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4444_AccountRegister.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	Function.Intrinsic.Control.CallSub(form_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.PAYROLL.End
+
+Program.Sub.TotalsValue.Start
+F.Intrinsic.Control.SetErrorHandler("TotalsValue_Err")
+F.Intrinsic.Control.ClearErrors
+V.Local.sError.Declare(String)
+
+V.Local.iMonth.Declare(String)
+V.Local..BulkDeclareString(ssql, sYear, sBegDate, sStart,sTotal)
+V.Local..BulkDeclareFloat(fStartBal)
+V.Local..BulkDeclareLong(iC, iBefore)
+
+' running total values
+'get beginning balance for the cash account
+F.Intrinsic.Date.Year(V.Global.snewStart, V.Local.sYear)
+F.Intrinsic.Date.Month(V.Global.snewStart,V.Local.iMonth)
+
+'Customer's fiscal year ends March 31st so we check to see if the selected month is before April. If it is then the fiscal year will be the selected year -1
+F.Intrinsic.Control.If(V.Local.iMonth,<,4)
+	F.Intrinsic.Math.Sub(V.Local.sYear.Long,1,V.Local.sYear)
+F.Intrinsic.Control.EndIf
+
+'get fiscal starting date
+F.Intrinsic.String.Build("Select BEG_DATE From V_GL_CALENDAR Where Left(START_YEAR,4)= '{0}' and PERIOD = '01'", V.Local.sYear, V.Local.ssql)
+Function.ODBC.Connection!con.ExecuteAndReturn(V.Local.ssql, V.Local.sBegDate)
+
+'get beginning bal for starting year
+F.Intrinsic.String.Build("Select BEG_BAL From GL_BALANCES Where ACCT = '{0}' And FISCAL_YR = '{1}'", V.Screen.Form!ddlCash.Text, V.Local.sYear, V.Local.ssql)
+Function.ODBC.Connection!con.ExecuteAndReturn(V.Local.ssql, V.Local.fStartBal)
+
+'create a temp dataTable to compute from the beginning of the year to current starting date
+F.Intrinsic.Date.DateAdd("D", -1, V.Global.snewStart, V.Global.snewStart)
+F.Intrinsic.String.Build("Select AMOUNT_CMPNY as Amount from V_GL_DETAIL Where GL_NUMBER = '100' And POST_DATE Between '{0}' And '{1}'", V.Local.sBegDate.PervasiveDate, V.Global.snewStart, V.Local.ssql)
+F.Data.DataTable.CreateFromSQL("Temp", "con", V.Local.ssql)
+'add beginning balance to table
+F.Data.DataTable.AddRow("Temp", "Amount", V.Local.fStartBal)
+
+F.Data.DataTable.Compute("Temp", "Sum(Amount)", "",V.Global.fStartCurrent)
+Function.Intrinsic.String.Format(V.Global.fStartCurrent, "#.00",V.Local.sStart)
+GUI.Form.txtBal.Text(V.Local.sStart)
+
+'V.Global.fStartCurrent is the starting balance for the records- need to loop through the data
+F.Intrinsic.Control.For(V.Local.iC, 0, V.DataView.Master!Master_V.RowCount--, 1)
+Function.Intrinsic.Control.If(V.Local.iC, =, 0)
+	F.Intrinsic.Math.Sub(V.Global.fStartCurrent,V.DataView.Master!Master_V(V.Local.iC).Debt!FieldVal, V.Local.sTotal)
+	F.Intrinsic.Math.Add(V.Local.sTotal,V.DataView.Master!Master_V(V.Local.iC).Credit!FieldVal, V.Local.sTotal)
+	Function.Intrinsic.String.Format(V.Local.sTotal, "#.00",V.Local.sTotal)
+	Function.Data.DataView.SetValue("Master", "Master_V", V.Local.iC, "Total", V.Local.sTotal) 
+	V.Local.iBefore.Set(0)
+Function.Intrinsic.Control.Else
+	F.Intrinsic.Math.Sub(V.DataView.Master!Master_V(V.Local.iBefore).Total!FieldVal, V.DataView.Master!Master_V(V.Local.iC).Debt!FieldVal, V.Local.sTotal)
+	F.Intrinsic.Math.Add(V.Local.sTotal, V.DataView.Master!Master_V(V.Local.iC).Credit!FieldVal, V.Local.sTotal)
+	Function.Intrinsic.String.Format(V.Local.sTotal, "#.00",V.Local.sTotal)
+	Function.Data.DataView.SetValue("Master", "Master_V", V.Local.iC, "Total", V.Local.sTotal) 
+	F.Intrinsic.Math.Add(V.Local.iBefore, 1, V.Local.iBefore)
+Function.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Next(V.Local.iC)
+
+
+F.Intrinsic.Control.ExitSub
+F.Intrinsic.Control.Label("TotalsValue_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4444_AccountRegister.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	Function.Intrinsic.Control.CallSub(form_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.TotalsValue.End
+
+Program.Sub.Comments.Start
+${$0$}$$}$DH1$}$2/28/2017 12:29:52 PM$}$False
+${$5$}$2.0.0.0$}$2
+${$6$}$aanazco$}$20211021141242201$}$7aQAV3Tor/tR9bkuakHbuzQlHVuXCGOz4sFig4qKGxXf9EhARdqZ/ZVke9U1FDL51/5CcwgQ44w=
+Program.Sub.Comments.End
